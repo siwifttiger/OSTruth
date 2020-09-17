@@ -38,11 +38,11 @@ SECTION MBR vstart=0x7c00
    mov byte [gs:0x08],'m'
    mov byte [gs:0x09],0xA4
 
-   mov eax,LOAD_START_SECTOR  ;eax=LBA sector number
-   mov bx,LOAD_BASE_ADDR      ;writing addr
-   mov cx,1                     ;sector numbers for reading
+   mov eax,LOADER_START_SECTOR  ;eax=LBA sector number
+   mov bx,LOADER_BASE_ADDR      ;writing addr
+   mov cx,4                     ;sector numbers for reading
    call rd_disk_m_16
-   jmp LOAD_BASE_ADDR
+   jmp LOADER_BASE_ADDR
 
    ;--------------------------------------
    ;read n sectors from disk
