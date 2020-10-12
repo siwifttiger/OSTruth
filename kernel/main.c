@@ -1,5 +1,17 @@
-int main(void)
-{
+#include "../lib/stdint.h"
+#include "../lib/kernel/print.h"
+void main(void) {
+	put_char('k');
+	put_char('e');
+	put_char('r');
+	put_char('n');
+	put_char('e');
+	put_char('l');
+	put_char('\n');
+	put_char('1');
+	put_char('2');
+	put_char('\b');
+	put_char('3');
+	put_str("\r\nI am kernel by put_str\n");
 	while(1);
-	return 0;
 }
