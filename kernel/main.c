@@ -1,6 +1,6 @@
 #include "../lib/stdint.h"
 #include "../lib/kernel/print.h"
-void main(void) {
+int main(void) {
 	put_char('k');
 	put_char('e');
 	put_char('r');
@@ -14,4 +14,5 @@ void main(void) {
 	put_char('3');
 	put_str("\r\nI am kernel by put_str\n");
 	while(1);
+	return 0;
 }
