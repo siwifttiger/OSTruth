@@ -11,6 +11,9 @@ RPL0 equ 0
 SELECTOR_VIDEO equ (0x0003 << 3) + TI_GDT + RPL0
 
 [bits 32]
+section .data
+put_int_buffer dq 0
+
 section .text
 ;--------------------------put_str----------------------------
 ;功能描述:通过put_char打印以０结尾的字符串
@@ -163,6 +166,72 @@ put_char:
 .put_char_done:
 	popad
 	ret
+
+
+;------------------------------将小端字节序的数字变成对应ASCII后倒置-----------------------
+;put_int:打印16进制数字
+;------------------------------------------------------------------------------------------
+global put_int
+put_int:
+	pushad
+	mov ebp, esp
+	mov eax, [ebp + 4*9]
+	mov edx, eax
+	mov edi, 7                 ;指明在put_int_buffer中的初始偏移量
+	mov ecx, 8                 ;32位数字中，16进制数字是８位
+	mov ebx, put_int_buffer
+
+	;将32位数字按照从低位到高位逐个处理
+	;共处理8个16进制数字
+.16based_4bits:
+	and edx, 0x0000000F        ;and之后，只剩下低４位有效，即dl
+	cmp edx, 9                 ;数字0~9和A~F需要分别处理
+	jg .is_A2F
+	add edx, '0'               ;ascii是８位大小, add求和操作后，edx低８位有效
+	jmp .store
+.is_A2F:
+	sub edx, 10                ;A~F 减去10 所得到的差，再加上字符A的ascii码，便是A~F对应的ASCII码
+	add edx, 'A'
+
+;将每一位数字转换成对应的字符后,按照类似“大端”的顺序存储到缓冲区put_int_buffer
+;高位字符放在低地址,低位字符要放在高地址,这样和大端字节序类似,只不过咱们这里是字符序.
+.store:
+	;此时dl应该是数字对应的ascii码
+	mov [ebx + edi], dl
+	dec edi
+	shr eax, 4                ;右移４位，获取下一位数字
+	mov edx, eax
+	loop .16based_4bits
+
+;经过上面的循环之后，put_int_buffer中已经是数字对应的字符串了
+;还需要做一些处理
+.ready_to_print:
+	inc edi            ;此时edi退减为-1(0xffffffff),　加１使其成为0
+.skip_prefix_0:
+	cmp edi, 8
+	je .full_0
+
+.go_on_skip:
+	mov cl, [put_int_buffer+edi] 
+	inc edi                        ;指向下一个字符，判断是否还是0
+	cmp cl, '0'
+	je .skip_prefix_0
+	dec edi
+	jmp .put_each_num
+
+.full_0:
+	mov cl, '0'
+.put_each_num:
+	push ecx                       ;此时cl中为待打印字符
+	call put_char
+	add esp, 4
+	inc edi
+	mov cl, [put_int_buffer+edi]   ;指向下一个字符
+	cmp edi, 8
+	jl .put_each_num
+	popad
+	ret
+
 
 
 
