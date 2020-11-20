@@ -10,7 +10,7 @@ CFLAGS=-m32 -Wall $(LIB) -c -fno-builtin -W -Wstrict-prototypes \
        -Wmissing-prototypes -fno-stack-protector 
 LDFLAGS=-m elf_i386 -Ttext $(ENTRY_POINT) -e main 
 OBJS=$(BUILD_DIR)/main.o $(BUILD_DIR)/print.o $(BUILD_DIR)/interrupt.o \
-	 $(BUILD_DIR)/init.o $(BUILD_DIR)/kernel.o 
+	 $(BUILD_DIR)/init.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/timer.o 
 
 ############C代码编译################
 $(BUILD_DIR)/main.o: kernel/main.c lib/stdint.h lib/kernel/print.h  kernel/init.h
@@ -23,6 +23,9 @@ $(BUILD_DIR)/init.o: kernel/init.c kernel/init.h lib/kernel/print.h\
 $(BUILD_DIR)/interrupt.o: kernel/interrupt.c kernel/interrupt.h \
 						  lib/stdint.h kernel/global.h lib/kernel/io.h \
 						  lib/kernel/print.h
+	$(CC) $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/timer.o: device/timer.c device/timer.h lib/stdint.h lib/kernel/io.h lib/kernel/print.h
 	$(CC) $(CFLAGS) $< -o $@
 
 ###########汇编代码编译#############
